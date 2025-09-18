@@ -1,0 +1,21 @@
+/* Floating Menu Tray */
+.menu-tray {
+	position: fixed;
+	top: 16px;
+	right: 16px;
+	background: rgba(255, 255, 255, 0.95);
+	border: 1px solid #e6e6e6;
+	border-radius: 8px;
+	padding: 6px 10px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+	z-index: 1000;
+}
+
+.menu-tray a {
+	margin-left: 8px;
+}
+
+/* Center Content Padding */
+.main-content {
+	padding-top: 120px;
+}
