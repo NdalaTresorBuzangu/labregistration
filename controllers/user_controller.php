@@ -12,7 +12,16 @@ function register_user_ctr($name, $email, $password, $phone_number, $role)
     }
     return false;
 }
+function login_customer_ctr($email, $password)
+{
+    $user = new User();
+    $customer = $user->getUserByEmail($email);
 
+    if ($customer && password_verify($password, $customer['customer_pass'])) {
+        return $customer;
+    }
+    return false;
+}
 function get_user_by_email_ctr($email)
 {
     $user = new User();
