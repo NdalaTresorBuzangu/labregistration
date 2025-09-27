@@ -1,52 +1,55 @@
 <?php
-include "../settings/connection.php"; // ✅ connection file
+include "../settings/connection.php";
+include "../controllers/user_controller.php";
 session_start();
 
-$email = $password = "";
+// Always return JSON
+header("Content-Type: application/json");
 
-// Collect and sanitize input
-$email = mysqli_real_escape_string($con, $_POST["email"]);
-$password = mysqli_real_escape_string($con, $_POST["password"]);
+$email    = isset($_POST["email"]) ? trim($_POST["email"]) : '';
+$password = isset($_POST["password"]) ? $_POST["password"] : '';
 
-// Query the customer table
-$login_query = "SELECT * FROM `customer` WHERE `customer_email` = ?";
-$query = $con->prepare($login_query);
+if (empty($email) || empty($password)) {
+    echo json_encode(["success" => false, "message" => "Email and password are required."]);
+    exit;
+}
 
-if ($query) {
-    $query->bind_param("s", $email);
-    $query->execute();
-    $result = $query->get_result();
+$customer = login_customer_ctr($email, $password);
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
+if ($customer) {
+    $_SESSION["user_id"] = $customer["customer_id"];
+    $_SESSION["name"]    = $customer["customer_name"];
+    $_SESSION["role"]    = (int)$customer["user_role"];
 
-        // Verify hashed password
-        if (!password_verify($password, $row["customer_pass"])) {
+    // Determine role name and redirect
+    switch ($_SESSION["role"]) {
+        case 2:
+            $role_name = "Owner";
+            $redirect  = "../category.php";
+            break;
+        case 1:
+            $role_name = "Customer";
+            $redirect  = "../index.php";
+            break;
+        default:
             echo json_encode([
-                'success' => false,
-                'message' => 'Incorrect email or password'
+                "success" => false,
+                "message" => "Invalid role in database. Allowed roles: 1 (Customer) or 2 (Owner). Got: " . $_SESSION["role"]
             ]);
-        } else {
-            // Store session values
-            $_SESSION["user_id"]  = $row["customer_id"];
-            $_SESSION["name"]     = $row["customer_name"];
-            $_SESSION["role"]     = $row["user_role"];
-
-            echo json_encode([
-                'success' => true,
-                'message' => 'Login successful! Welcome, ' . $row["customer_name"]
-            ]);
-        }
-    } else {
-        echo json_encode([
-            'success' => false,
-            'message' => 'This account is not registered'
-        ]);
+            exit;
     }
+
+    // Send JSON response
+    echo json_encode([
+        "success"  => true,
+        "message"  => "Welcome " . $customer["customer_name"] . " ($role_name)",
+        "role"     => $_SESSION["role"],
+        "redirect" => $redirect
+    ]);
+
 } else {
     echo json_encode([
-        'success' => false,
-        'message' => 'Query preparation failed'
+        "success" => false,
+        "message" => "Invalid email or password."
     ]);
 }
-?>

@@ -1,34 +1,40 @@
-$(document).ready(function() {
-    $('#register-form').submit(function(e) {
+$(document).ready(function () {
+    $('#register-form').submit(function (e) {
         e.preventDefault();
 
-        name = $('#name').val();
-        email = $('#email').val();
-        password = $('#password').val();
-        phone_number = $('#phone_number').val();
-        role = $('input[name="role"]:checked').val();
+        let name = $('#name').val().trim();
+        let email = $('#email').val().trim();
+        let password = $('#password').val();
+        let phone_number = $('#phone_number').val().trim();
+        let role = $('input[name="role"]:checked').val();
 
-        if (name == '' || email == '' || password == '' || phone_number == '') {
+        // Form validation
+        if (name === '' || email === '' || password === '' || phone_number === '') {
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 text: 'Please fill in all fields!',
             });
-
             return;
-        } else if (password.length < 6 || !password.match(/[a-z]/) || !password.match(/[A-Z]/) || !password.match(/[0-9]/)) {
+        }
+
+        if (password.length < 6 || 
+            !/[a-z]/.test(password) || 
+            !/[A-Z]/.test(password) || 
+            !/[0-9]/.test(password)) {
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 text: 'Password must be at least 6 characters long and contain at least one lowercase letter, one uppercase letter, and one number!',
             });
-
             return;
         }
 
+        // Send request via AJAX
         $.ajax({
             url: '../actions/register_user_action.php',
             type: 'POST',
+            dataType: 'json',
             data: {
                 name: name,
                 email: email,
@@ -36,7 +42,7 @@ $(document).ready(function() {
                 phone_number: phone_number,
                 role: role
             },
-            success: function(response) {
+            success: function (response) {
                 if (response.status === 'success') {
                     Swal.fire({
                         icon: 'success',
@@ -55,7 +61,7 @@ $(document).ready(function() {
                     });
                 }
             },
-            error: function() {
+            error: function () {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',

@@ -1,54 +1,59 @@
 $(document).ready(function () {
-    $('#login-form').submit(function (e) {
-        e.preventDefault();
+  $("#loginForm").on("submit", function (e) {
+    e.preventDefault();
 
-        let email = $('#email').val().trim();
-        let password = $('#password').val().trim();
+    $.ajax({
+      type: "POST",
+      url: "actions/login_action.php",
+      data: $(this).serialize(),
+      dataType: "json",
+      success: function (response) {
+        console.log("AJAX response:", response); // 🔥 debug
 
-        if (email === '' || password === '') {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Please fill in both fields!'
-            });
-            return;
-        }
-
-        $.ajax({
-            url: '../actions/login-action.php',  // ✅ matches your file name
-            type: 'POST',
-            dataType: 'json',
-            data: { email: email, password: password },
-            success: function (response) {
-                if (response.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Welcome',
-                        text: response.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.href = 'index.php';  // ✅ redirect here
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: response.message
-                    });
-                }
-            },
-            error: function () {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Server Error',
-                    text: 'Something went wrong. Please try again later.'
-                });
+        if (response.success) {
+          // SweetAlert success popup
+          Swal.fire({
+            icon: "success",
+            title: "Success!",
+            html: response.message,
+            timer: 1500,
+            showConfirmButton: false,
+            allowOutsideClick: false
+          }).then(() => {
+            // Redirect after popup
+            if (response.redirect) {
+              window.location.href = response.redirect;
+            } else if (response.role) {
+              // Fallback role-based redirect
+              if (response.role == 2) {
+                window.location.href = "../category.php";
+              } else {
+                window.location.href = "../index.php";
+              }
+            } else {
+              console.warn("No redirect or role found, staying on login page");
             }
+          });
+
+        } else {
+          // SweetAlert error popup
+          Swal.fire({
+            icon: "error",
+            title: "Login Failed",
+            text: response.message,
+            confirmButtonColor: "#d33"
+          });
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("AJAX Error:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Something went wrong. Try again.",
+          confirmButtonColor: "#d33"
         });
+      }
     });
+  });
 });
-
-
-
-
