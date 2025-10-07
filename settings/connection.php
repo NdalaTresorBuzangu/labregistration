@@ -3,9 +3,9 @@
 
 // Database connection settings
 $servername = "localhost";
-$username   = "root";     // adjust if not root
-$password   = "";         // your MySQL password
-$dbname     = "shoppn";   // matches your schema
+$username   = "tresor.ndala";     // adjust if not root
+$password   = "Ndala1950@@";         // your MySQL password
+$dbname     = "ecommerce_2025A_tresor_ndala";   // matches your schema
 
 // Create connection
 $con = new mysqli($servername, $username, $password, $dbname);
