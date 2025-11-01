@@ -82,7 +82,7 @@ function uploads_store_image(array $file, int $userId, array $subSegments, ?stri
     }
 
     $ext = $validation['extension'];
-    $destinationDir = uploads_ensure_subdir(array_merge(['u' . $userId], $subSegments));
+    $destinationDir = uploads_ensure_subdir(array_merge(['images', 'u' . $userId], $subSegments));
     if ($destinationDir === null) {
         return ['success' => false, 'message' => 'Failed to prepare upload directory'];
     }

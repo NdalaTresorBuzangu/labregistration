@@ -54,7 +54,7 @@ $movedImageRelative = null;
 
 if ($stagedPath !== null) {
     $relative = uploads_normalize_relative($stagedPath);
-    $move = uploads_move_within($relative, ['u' . $userId, 'p' . $productId], 'image_' . $productId . '_' . time());
+    $move = uploads_move_within($relative, ['images', 'u' . $userId, 'p' . $productId], 'image_' . $productId . '_' . time());
     if (!$move['success']) {
         uploads_delete($stagedPath);
         echo json_encode(['success' => false, 'message' => $move['message']]);

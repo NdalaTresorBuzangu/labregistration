@@ -52,7 +52,7 @@ if (!$result['success']) {
 $productId = (int)$result['product_id'];
 $relativeStaged = uploads_normalize_relative($stagedPath);
 
-$move = uploads_move_within($relativeStaged, ['u' . $userId, 'p' . $productId], 'image_' . $productId . '_' . time());
+$move = uploads_move_within($relativeStaged, ['images', 'u' . $userId, 'p' . $productId], 'image_' . $productId . '_' . time());
 if (!$move['success']) {
     delete_product_ctr($userId, $productId);
     uploads_delete($stagedPath);

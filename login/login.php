@@ -1,7 +1,8 @@
 <?php
 session_start();
-include "../settings/connection.php";
-include "../controllers/user_controller.php";
+
+require_once __DIR__ . '/../settings/connection.php';
+require_once __DIR__ . '/../controllers/user_controller.php';
 
 // Handle AJAX login
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'], $_POST['password'])) {

@@ -1,18 +1,26 @@
 <?php
-// settings/db_connection.php
 
-// Database connection settings
-$servername = "localhost";
-$username   = "tresor.ndala";     // adjust if not root
-$password   = "Ndala1950@@";         // your MySQL password
-$dbname     = "ecommerce_2025A_tresor_ndala";   // matches your schema
+require_once __DIR__ . '/db_cred.php';
 
-// Create connection
-$con = new mysqli($servername, $username, $password, $dbname);
+if (!isset($GLOBALS['con']) || !($GLOBALS['con'] instanceof mysqli)) {
+    $mysqli = @mysqli_connect(SERVER, USERNAME, PASSWD, DATABASE);
 
-// Check connection
-if ($con->connect_error) {
-    die("Connection failed: " . $con->connect_error);
+    if (!$mysqli) {
+        $errorMessage = sprintf(
+            'Database connection failed (%s): %s',
+            mysqli_connect_errno(),
+            mysqli_connect_error()
+        );
+        error_log($errorMessage);
+        die('Database connection failed. Please contact the administrator.');
+    }
+
+    mysqli_set_charset($mysqli, 'utf8mb4');
+    $GLOBALS['con'] = $mysqli;
 }
+
+$con = $GLOBALS['con'];
+
 ?>
+
 
