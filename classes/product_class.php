@@ -197,6 +197,95 @@ class Product extends db_connection
         return ['success' => false, 'message' => 'Database error while updating image'];
     }
 
+    public function addGalleryImage(int $userId, int $productId, string $imagePath): array
+    {
+        $imagePath = trim($imagePath);
+
+        if ($productId <= 0 || $imagePath === '') {
+            return ['success' => false, 'message' => 'Invalid product or image'];
+        }
+
+        if (!$this->ownsProduct($userId, $productId)) {
+            return ['success' => false, 'message' => 'Product not found'];
+        }
+
+        if ($stmt = $this->db->prepare('INSERT INTO product_images (product_id, image_path, added_by) VALUES (?, ?, ?)')) {
+            $stmt->bind_param('isi', $productId, $imagePath, $userId);
+            $success = $stmt->execute();
+            $imageId = $this->db->insert_id;
+            $stmt->close();
+
+            return $success
+                ? ['success' => true, 'message' => 'Gallery image added', 'image_id' => $imageId, 'path' => $imagePath]
+                : ['success' => false, 'message' => 'Failed to store gallery image'];
+        }
+
+        return ['success' => false, 'message' => 'Database error while storing gallery image'];
+    }
+
+    public function getGalleryImagesForProducts(int $userId, array $productIds): array
+    {
+        $productIds = array_values(array_unique(array_map('intval', $productIds)));
+
+        if (empty($productIds)) {
+            return [];
+        }
+
+        $idList = implode(',', $productIds);
+        $sql = "SELECT image_id, product_id, image_path, created_at
+                FROM product_images
+                WHERE added_by = ? AND product_id IN ($idList)
+                ORDER BY created_at DESC";
+
+        $grouped = [];
+
+        if ($stmt = $this->db->prepare($sql)) {
+            $stmt->bind_param('i', $userId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $rows = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+            $stmt->close();
+
+            foreach ($rows as $row) {
+                $productId = (int)$row['product_id'];
+                $grouped[$productId][] = [
+                    'image_id' => (int)$row['image_id'],
+                    'path' => $row['image_path'],
+                    'created_at' => $row['created_at'],
+                ];
+            }
+        }
+
+        return $grouped;
+    }
+
+    private function ownsProduct(int $userId, int $productId): bool
+    {
+        if ($stmt = $this->db->prepare('SELECT 1 FROM products WHERE product_id = ? AND added_by = ? LIMIT 1')) {
+            $stmt->bind_param('ii', $productId, $userId);
+            $stmt->execute();
+            $stmt->store_result();
+            $owns = $stmt->num_rows > 0;
+            $stmt->close();
+            return $owns;
+        }
+
+        return false;
+    }
+
+    public function deleteGalleryImage(int $userId, int $imageId): bool
+    {
+        if ($stmt = $this->db->prepare('DELETE FROM product_images WHERE image_id = ? AND added_by = ?')) {
+            $stmt->bind_param('ii', $imageId, $userId);
+            $stmt->execute();
+            $affected = $stmt->affected_rows > 0;
+            $stmt->close();
+            return $affected;
+        }
+
+        return false;
+    }
+
     private function validatePayload(array $payload, bool $requireImage = false): array
     {
         $normalized = [

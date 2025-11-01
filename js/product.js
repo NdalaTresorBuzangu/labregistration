@@ -22,6 +22,12 @@ $(document).ready(function () {
     const $modalBody = $('#modal_product_body');
     const $modalTitle = $('#modal_product_title');
     const $modalEditBtn = $('#modal_edit_product');
+    const $bulkUploadGroup = $('#product-bulk-upload-group');
+    const $bulkUploadInput = $('#product_bulk_images');
+    const $bulkUploadBtn = $('#product-bulk-upload-btn');
+    const $bulkUploadClearBtn = $('#product-bulk-clear-btn');
+    const $bulkUploadStatus = $('#product-bulk-upload-status');
+    const $galleryPreview = $('#product-gallery-preview');
 
     let categories = [];
     const brandMap = new Map();
@@ -44,6 +50,10 @@ $(document).ready(function () {
         $submitBtn.text('Save Product');
         $cancelEdit.addClass('d-none');
         updateBrandOptions('', '');
+        $bulkUploadGroup.addClass('d-none');
+        $bulkUploadInput.val('');
+        $bulkUploadStatus.text('');
+        $galleryPreview.empty().addClass('d-none');
     }
 
     function populateCategories(selectValue = '') {
@@ -81,6 +91,26 @@ $(document).ready(function () {
         if (selectedBrandId && brands.some((brand) => Number(brand.brand_id) === Number(selectedBrandId))) {
             $brandSelect.val(String(selectedBrandId));
         }
+    }
+
+    function renderGalleryPreview(images = []) {
+        if (!Array.isArray(images) || images.length === 0) {
+            $galleryPreview.empty().addClass('d-none');
+            return;
+        }
+
+        let markup = '<div class="d-flex flex-wrap gap-3">';
+        images.forEach(function (image, index) {
+            const src = image.path ? `../${image.path}` : '';
+            markup += `
+                <div class="gallery-thumb">
+                    <img src="${src}" alt="Gallery image ${index + 1}">
+                    <span class="badge bg-light text-muted">${index + 1}</span>
+                </div>`;
+        });
+        markup += '</div>';
+
+        $galleryPreview.html(markup).removeClass('d-none');
     }
 
     function loadCategories() {
@@ -155,9 +185,15 @@ $(document).ready(function () {
                         </div>`;
 
                 products.forEach(function (product) {
+                    const gallery = product.gallery || [];
+                    const galleryBadge = gallery.length
+                        ? `<span class="badge badge-gradient ms-2">${gallery.length} image${gallery.length === 1 ? '' : 's'}</span>`
+                        : '';
+
                     productIndex.set(product.product_id, Object.assign({}, product, {
                         category_name: group.category_name,
-                        brand_name: brand.brand_name
+                        brand_name: brand.brand_name,
+                        gallery: gallery
                     }));
 
                     const imageSrc = product.image ? `../${product.image}` : 'https://via.placeholder.com/300x200?text=No+Image';
@@ -172,7 +208,7 @@ $(document).ready(function () {
                                 <div class="col-md-9">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-start">
-                                            <h6 class="card-title mb-1">${product.title}</h6>
+                                            <h6 class="card-title mb-1">${product.title}${galleryBadge}</h6>
                                             <span class="badge bg-success">${priceLabel}</span>
                                         </div>
                                         <p class="card-text text-muted small mb-2">${product.keywords || 'No keywords'}</p>
@@ -267,6 +303,8 @@ $(document).ready(function () {
         $brandSelect.prop('disabled', false);
         $keywords.val(product.keywords || '');
         $description.val(product.description || '');
+        $bulkUploadInput.val('');
+        $bulkUploadStatus.text('');
 
         if (product.image) {
             $imagePreview.attr('src', `../${product.image}`);
@@ -282,6 +320,14 @@ $(document).ready(function () {
         $formTitle.text('Edit Product');
         $submitBtn.text('Update Product');
         $cancelEdit.removeClass('d-none');
+
+        if (product.product_id) {
+            $bulkUploadGroup.removeClass('d-none');
+            renderGalleryPreview(product.gallery || []);
+        } else {
+            $bulkUploadGroup.addClass('d-none');
+            renderGalleryPreview([]);
+        }
     }
 
     function renderModal(product) {
@@ -297,6 +343,15 @@ $(document).ready(function () {
             ? `<img src="../${product.image}" class="img-fluid rounded mb-3" alt="${product.title}">
                `
             : '<div class="alert alert-secondary">No image uploaded for this product.</div>';
+
+        let galleryMarkup = '';
+        if (product.gallery && product.gallery.length) {
+            galleryMarkup = '<div class="mt-3"><h6>Gallery</h6><div class="d-flex flex-wrap gap-2">';
+            product.gallery.forEach(function (image) {
+                galleryMarkup += `<img src="../${image.path}" class="img-thumbnail" style="width:100px;height:100px;object-fit:cover;" alt="Gallery image">`;
+            });
+            galleryMarkup += '</div></div>';
+        }
 
         $modalBody.html(`
             ${imageMarkup}
@@ -316,7 +371,58 @@ $(document).ready(function () {
                 <dt class="col-sm-3">Description</dt>
                 <dd class="col-sm-9">${product.description || '—'}</dd>
             </dl>
+            ${galleryMarkup}
         `);
+    }
+
+    function uploadGallery(files) {
+        const productIdValue = $productId.val();
+
+        if (!productIdValue) {
+            showError('Save the product before uploading gallery images');
+            return;
+        }
+
+        const fd = new FormData();
+        fd.append('product_id', productIdValue);
+
+        Array.from(files).forEach(function (file) {
+            fd.append('product_images[]', file);
+        });
+
+        $.ajax({
+            url: '../actions/upload_product_image_action.php',
+            method: 'POST',
+            data: fd,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            beforeSend: function () {
+                $bulkUploadBtn.prop('disabled', true).text('Uploading…');
+            }
+        }).done(function (response) {
+            if (!response.success) {
+                showError(response.message || 'Unable to upload gallery images');
+                return;
+            }
+
+            Swal.fire('Success', response.message, 'success');
+            $bulkUploadInput.val('');
+            $bulkUploadStatus.text('');
+
+            loadProducts($search.val().trim()).done(function () {
+                const current = productIndex.get(Number(productIdValue));
+                if (current) {
+                    renderGalleryPreview(current.gallery || []);
+                } else {
+                    renderGalleryPreview([]);
+                }
+            });
+        }).fail(function (xhr) {
+            showError(xhr.responseJSON && xhr.responseJSON.message);
+        }).always(function () {
+            $bulkUploadBtn.prop('disabled', false).text('Upload Selected');
+        });
     }
 
     $categorySelect.on('change', function () {
@@ -437,6 +543,33 @@ $(document).ready(function () {
         searchTimer = setTimeout(function () {
             loadProducts(value);
         }, 300);
+    });
+
+    $bulkUploadInput.on('change', function () {
+        const files = this.files;
+        if (files && files.length) {
+            $bulkUploadStatus.text(`${files.length} file(s) selected`);
+        } else {
+            $bulkUploadStatus.text('');
+        }
+    });
+
+    $bulkUploadBtn.on('click', function () {
+        const files = $bulkUploadInput[0].files;
+        if (!$productId.val()) {
+            showError('Save the product before uploading gallery images');
+            return;
+        }
+        if (!files || !files.length) {
+            showError('Select one or more images to upload');
+            return;
+        }
+        uploadGallery(files);
+    });
+
+    $bulkUploadClearBtn.on('click', function () {
+        $bulkUploadInput.val('');
+        $bulkUploadStatus.text('');
     });
 
     $.when(loadCategories(), loadBrands()).done(function () {

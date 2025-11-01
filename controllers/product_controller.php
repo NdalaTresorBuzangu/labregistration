@@ -40,5 +40,23 @@ function delete_product_ctr(int $userId, int $productId): bool
     return $product->delete($userId, $productId);
 }
 
+function add_product_gallery_image_ctr(int $userId, int $productId, string $imagePath): array
+{
+    global $product;
+    return $product->addGalleryImage($userId, $productId, $imagePath);
+}
+
+function get_product_gallery_images_ctr(int $userId, array $productIds): array
+{
+    global $product;
+    return $product->getGalleryImagesForProducts($userId, $productIds);
+}
+
+function delete_product_gallery_image_ctr(int $userId, int $imageId): bool
+{
+    global $product;
+    return $product->deleteGalleryImage($userId, $imageId);
+}
+
 ?>
 

@@ -63,53 +63,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'], $_POST['pass
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Taste of Africa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login · Taste of Africa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../CSS/app.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        .btn-custom { background-color:#D19C97; border-color:#D19C97; color:#fff; transition:0.3s; }
-        .btn-custom:hover { background-color:#b77a7a; border-color:#b77a7a; }
-        .highlight { color:#D19C97; }
-        body { background-color:#f8f9fa; min-height:100vh; font-family:Arial,sans-serif; }
-        .login-container { margin-top:100px; }
-        .card { border:none; border-radius:15px; box-shadow:0 4px 6px rgba(0,0,0,0.1); }
-        .card-header { background-color:#D19C97; color:#fff; }
-        .animate-pulse-custom { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%{transform:scale(1);}50%{transform:scale(1.05);}100%{transform:scale(1);} }
-    </style>
 </head>
 <body>
-<div class="container login-container">
-    <div class="row justify-content-center animate__animated animate__fadeInDown">
-        <div class="col-md-6">
-            <div class="card animate__animated animate__zoomIn">
-                <div class="card-header text-center highlight">
-                    <h4>Login</h4>
-                </div>
-                <div class="card-body">
-                    <form method="POST" id="login-form" class="mt-4">
+<div class="app-shell d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5">
+                <div class="app-card">
+                    <div class="text-center mb-4">
+                        <span class="badge-gradient">Welcome back</span>
+                        <h2 class="mt-3 mb-1">Sign in to your workspace</h2>
+                        <p class="text-muted mb-0">Access your marketplace analytics and management tools.</p>
+                    </div>
+                    <form method="POST" id="login-form">
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email <i class="fa fa-envelope"></i></label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label for="email" class="form-label">Email address</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
+                            </div>
                         </div>
                         <div class="mb-4">
-                            <label for="password" class="form-label">Password <i class="fa fa-lock"></i></label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="password" class="form-label mb-0">Password</label>
+                                <a href="#" class="small text-muted">Forgot password?</a>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-custom w-100 animate-pulse-custom">Login</button>
+                        <button type="submit" class="btn app-button-primary w-100">Sign in</button>
                     </form>
-                </div>
-                <div class="card-footer text-center">
-                    Don't have an account? <a href="register.php" class="highlight">Register here</a>.
+                    <div class="text-center mt-4">
+                        <span class="text-muted">New here?</span>
+                        <a href="register.php" class="ms-2">Create an account</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 $(document).ready(function(){
     $("#login-form").on("submit", function(e){

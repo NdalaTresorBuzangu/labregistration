@@ -32,9 +32,15 @@ if ($search !== '') {
 
 $grouped = [];
 
+$productIds = array_column($products, 'product_id');
+$galleryByProduct = !empty($productIds)
+    ? get_product_gallery_images_ctr($userId, $productIds)
+    : [];
+
 foreach ($products as $product) {
     $catId = (int)$product['product_cat'];
     $brandId = (int)$product['product_brand'];
+    $productId = (int)$product['product_id'];
 
     if (!isset($grouped[$catId])) {
         $grouped[$catId] = [
@@ -53,7 +59,7 @@ foreach ($products as $product) {
     }
 
     $grouped[$catId]['brands'][$brandId]['products'][] = [
-        'product_id' => (int)$product['product_id'],
+        'product_id' => $productId,
         'title' => $product['product_title'],
         'price' => (float)$product['product_price'],
         'description' => $product['product_desc'],
@@ -61,6 +67,7 @@ foreach ($products as $product) {
         'image' => $product['product_image'],
         'category_id' => $catId,
         'brand_id' => $brandId,
+        'gallery' => $galleryByProduct[$productId] ?? [],
     ];
 }
 
