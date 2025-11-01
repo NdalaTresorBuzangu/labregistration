@@ -23,7 +23,7 @@ function getCustomerName() {
     <link rel="stylesheet" href="CSS/app.css">
     <link rel="stylesheet" href="CSS/index.css">
 </head>
-<body>
+<body data-page="landing" data-api-base="actions/product_actions.php">
 
     <?php
     $isLoggedIn = isset($_SESSION['user_id']);
@@ -37,16 +37,26 @@ function getCustomerName() {
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="primaryNav">
-                <div class="ms-auto d-flex align-items-center gap-2">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="index.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="all_product.php">All Products</a></li>
                     <?php if (!$isLoggedIn): ?>
-                        <a href="login/register.php" class="btn app-button-ghost btn-sm">Register</a>
-                        <a href="login/login.php" class="btn app-button-primary btn-sm">Login</a>
+                        <li class="nav-item"><a class="nav-link" href="login/register.php">Register</a></li>
+                    <?php endif; ?>
+                    <?php if ($isLoggedIn && $isAdmin): ?>
+                        <li class="nav-item"><a class="nav-link" href="admin/category.php">Admin</a></li>
+                    <?php endif; ?>
+                </ul>
+                <form class="d-flex flex-wrap gap-2 align-items-center" action="product_search_result.php" method="get">
+                    <input type="text" name="q" class="form-control" placeholder="Search products" data-role="product-search-input">
+                    <select class="form-select" name="category_id" data-role="filter-category"></select>
+                    <select class="form-select" name="brand_id" data-role="filter-brand"></select>
+                    <button class="btn app-button-primary" type="submit">Search</button>
+                </form>
+                <div class="d-flex gap-2 ms-lg-3">
+                    <?php if (!$isLoggedIn): ?>
+                        <a href="login/login.php" class="btn btn-outline-light btn-sm">Login</a>
                     <?php else: ?>
-                        <?php if ($isAdmin): ?>
-                            <a href="admin/category.php" class="btn app-button-ghost btn-sm">Categories</a>
-                            <a href="admin/brand.php" class="btn app-button-ghost btn-sm">Brands</a>
-                            <a href="admin/product.php" class="btn app-button-primary btn-sm">Products</a>
-                        <?php endif; ?>
                         <a href="logout.php" class="btn btn-outline-light btn-sm">Logout</a>
                     <?php endif; ?>
                 </div>
@@ -126,6 +136,7 @@ function getCustomerName() {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/storefront.js"></script>
 </body>
 </html>
 

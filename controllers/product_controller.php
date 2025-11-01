@@ -40,6 +40,48 @@ function delete_product_ctr(int $userId, int $productId): bool
     return $product->delete($userId, $productId);
 }
 
+function list_products_public_ctr(array $filters = [], ?int $limit = null, int $offset = 0): array
+{
+    global $product;
+    return $product->viewAllProducts($limit, $offset, $filters);
+}
+
+function search_products_public_ctr(string $query, array $filters = [], ?int $limit = null, int $offset = 0): array
+{
+    global $product;
+    return $product->searchProducts($query, $limit, $offset, $filters);
+}
+
+function filter_products_by_category_ctr(int $categoryId, array $filters = [], ?int $limit = null, int $offset = 0): array
+{
+    global $product;
+    return $product->filterProductsByCategory($categoryId, $limit, $offset, $filters);
+}
+
+function filter_products_by_brand_ctr(int $brandId, array $filters = [], ?int $limit = null, int $offset = 0): array
+{
+    global $product;
+    return $product->filterProductsByBrand($brandId, $limit, $offset, $filters);
+}
+
+function view_single_product_public_ctr(int $productId): ?array
+{
+    global $product;
+    return $product->viewSingleProduct($productId);
+}
+
+function count_products_public_ctr(array $filters = []): int
+{
+    global $product;
+    return $product->countProducts($filters);
+}
+
+function list_all_brands_ctr(): array
+{
+    global $product;
+    return $product->listAllBrands();
+}
+
 function add_product_gallery_image_ctr(int $userId, int $productId, string $imagePath): array
 {
     global $product;

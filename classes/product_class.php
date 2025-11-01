@@ -259,6 +259,227 @@ class Product extends db_connection
         return $grouped;
     }
 
+    public function viewAllProducts(?int $limit = null, int $offset = 0, array $filters = []): array
+    {
+        return $this->fetchProducts($filters, $limit, $offset);
+    }
+
+    public function searchProducts(string $query, ?int $limit = null, int $offset = 0, array $filters = []): array
+    {
+        $filters['query'] = $query;
+        return $this->fetchProducts($filters, $limit, $offset);
+    }
+
+    public function filterProductsByCategory(int $categoryId, ?int $limit = null, int $offset = 0, array $filters = []): array
+    {
+        $filters['category_id'] = $categoryId;
+        return $this->fetchProducts($filters, $limit, $offset);
+    }
+
+    public function filterProductsByBrand(int $brandId, ?int $limit = null, int $offset = 0, array $filters = []): array
+    {
+        $filters['brand_id'] = $brandId;
+        return $this->fetchProducts($filters, $limit, $offset);
+    }
+
+    public function viewSingleProduct(int $productId): ?array
+    {
+        $result = $this->fetchProducts(['product_id' => $productId], null, 0);
+        return $result[0] ?? null;
+    }
+
+    public function countProducts(array $filters = []): int
+    {
+        [$whereClause, $types, $params] = $this->buildFilterQuery($filters);
+        $sql = 'SELECT COUNT(*) AS total FROM products p WHERE 1=1' . $whereClause;
+
+        if ($stmt = $this->db->prepare($sql)) {
+            $this->bindDynamicParams($stmt, $types, $params);
+            $stmt->execute();
+            $result = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            return (int)($result['total'] ?? 0);
+        }
+
+        return 0;
+    }
+
+    public function listAllBrands(): array
+    {
+        $brands = [];
+        $sql = 'SELECT brand_id, brand_name FROM brands ORDER BY brand_name ASC';
+
+        if ($stmt = $this->db->prepare($sql)) {
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $brands = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+            $stmt->close();
+        }
+
+        return $brands;
+    }
+
+    private function fetchProducts(array $filters = [], ?int $limit = null, int $offset = 0): array
+    {
+        [$whereClause, $types, $params] = $this->buildFilterQuery($filters);
+
+        $sql = 'SELECT p.product_id, p.product_cat, p.product_brand, p.product_title, p.product_price, '
+             . 'p.product_desc, p.product_image, p.product_keywords, p.added_by, p.created_at, p.updated_at, '
+             . 'c.cat_name, b.brand_name '
+             . 'FROM products p '
+             . 'INNER JOIN categories c ON c.cat_id = p.product_cat '
+             . 'INNER JOIN brands b ON b.brand_id = p.product_brand '
+             . 'WHERE 1=1' . $whereClause
+             . ' ORDER BY p.created_at DESC';
+
+        if ($limit !== null) {
+            $sql .= ' LIMIT ? OFFSET ?';
+            $types .= 'ii';
+            $params[] = (int)$limit;
+            $params[] = max(0, (int)$offset);
+        }
+
+        $products = [];
+
+        if ($stmt = $this->db->prepare($sql)) {
+            $this->bindDynamicParams($stmt, $types, $params);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $products = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+            $stmt->close();
+        }
+
+        if (empty($products)) {
+            return [];
+        }
+
+        $productIds = array_map(static function ($product) {
+            return (int)$product['product_id'];
+        }, $products);
+
+        $galleryMap = $this->getGalleryImagesPublic($productIds);
+
+        foreach ($products as &$product) {
+            $id = (int)$product['product_id'];
+            $product['gallery'] = $galleryMap[$id] ?? [];
+            if ((empty($product['product_image']) || $product['product_image'] === null) && !empty($product['gallery'])) {
+                $product['product_image'] = $product['gallery'][0]['path'];
+            }
+        }
+        unset($product);
+
+        return $products;
+    }
+
+    private function buildFilterQuery(array $filters): array
+    {
+        $clauses = [];
+        $types = '';
+        $params = [];
+
+        if (!empty($filters['product_id'])) {
+            $clauses[] = ' AND p.product_id = ?';
+            $types .= 'i';
+            $params[] = (int)$filters['product_id'];
+        }
+
+        if (!empty($filters['category_id'])) {
+            $clauses[] = ' AND p.product_cat = ?';
+            $types .= 'i';
+            $params[] = (int)$filters['category_id'];
+        }
+
+        if (!empty($filters['brand_id'])) {
+            $clauses[] = ' AND p.product_brand = ?';
+            $types .= 'i';
+            $params[] = (int)$filters['brand_id'];
+        }
+
+        if (!empty($filters['added_by'])) {
+            $clauses[] = ' AND p.added_by = ?';
+            $types .= 'i';
+            $params[] = (int)$filters['added_by'];
+        }
+
+        if (!empty($filters['price_min'])) {
+            $clauses[] = ' AND p.product_price >= ?';
+            $types .= 'd';
+            $params[] = (float)$filters['price_min'];
+        }
+
+        if (!empty($filters['price_max'])) {
+            $clauses[] = ' AND p.product_price <= ?';
+            $types .= 'd';
+            $params[] = (float)$filters['price_max'];
+        }
+
+        if (!empty($filters['query'])) {
+            $like = '%' . $filters['query'] . '%';
+            $clauses[] = ' AND (p.product_title LIKE ? OR p.product_keywords LIKE ?)';
+            $types .= 'ss';
+            $params[] = $like;
+            $params[] = $like;
+        }
+
+        if (!empty($filters['keywords'])) {
+            $clauses[] = ' AND FIND_IN_SET(?, p.product_keywords)';
+            $types .= 's';
+            $params[] = $filters['keywords'];
+        }
+
+        return [implode('', $clauses), $types, $params];
+    }
+
+    private function getGalleryImagesPublic(array $productIds): array
+    {
+        if (empty($productIds)) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+        $sql = "SELECT image_id, product_id, image_path, created_at
+                FROM product_images
+                WHERE product_id IN ($placeholders)
+                ORDER BY created_at DESC";
+
+        $types = str_repeat('i', count($productIds));
+        $gallery = [];
+
+        if ($stmt = $this->db->prepare($sql)) {
+            $this->bindDynamicParams($stmt, $types, $productIds);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $rows = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+            $stmt->close();
+
+            foreach ($rows as $row) {
+                $pid = (int)$row['product_id'];
+                $gallery[$pid][] = [
+                    'image_id' => (int)$row['image_id'],
+                    'path' => $row['image_path'],
+                    'created_at' => $row['created_at'],
+                ];
+            }
+        }
+
+        return $gallery;
+    }
+
+    private function bindDynamicParams(\mysqli_stmt $stmt, string $types, array $params): void
+    {
+        if ($types === '' || empty($params)) {
+            return;
+        }
+
+        $refs = [];
+        foreach ($params as $key => $value) {
+            $refs[$key] = &$params[$key];
+        }
+
+        array_unshift($refs, $types);
+        $stmt->bind_param(...$refs);
+    }
+
     private function ownsProduct(int $userId, int $productId): bool
     {
         if ($stmt = $this->db->prepare('SELECT 1 FROM products WHERE product_id = ? AND added_by = ? LIMIT 1')) {
