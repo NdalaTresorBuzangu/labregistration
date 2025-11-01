@@ -31,7 +31,10 @@ USE `shoppn`;
 
 CREATE TABLE `brands` (
   `brand_id` int(11) NOT NULL,
-  `brand_name` varchar(100) NOT NULL
+  `brand_name` varchar(100) NOT NULL,
+  `category_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -130,8 +133,11 @@ CREATE TABLE `products` (
   `product_title` varchar(200) NOT NULL,
   `product_price` double NOT NULL,
   `product_desc` varchar(500) DEFAULT NULL,
-  `product_image` varchar(100) DEFAULT NULL,
-  `product_keywords` varchar(100) DEFAULT NULL
+  `product_image` varchar(255) DEFAULT NULL,
+  `product_keywords` varchar(100) DEFAULT NULL,
+  `added_by` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -156,7 +162,10 @@ CREATE TABLE `product_images` (
 -- Indexes for table `brands`
 --
 ALTER TABLE `brands`
-  ADD PRIMARY KEY (`brand_id`);
+  ADD PRIMARY KEY (`brand_id`),
+  ADD UNIQUE KEY `uniq_brand_category` (`brand_name`,`category_id`),
+  ADD KEY `brands_category_idx` (`category_id`),
+  ADD KEY `brands_user_idx` (`user_id`);
 
 --
 -- Indexes for table `cart`
@@ -206,7 +215,8 @@ ALTER TABLE `payment`
 ALTER TABLE `products`
   ADD PRIMARY KEY (`product_id`),
   ADD KEY `product_cat` (`product_cat`),
-  ADD KEY `product_brand` (`product_brand`);
+  ADD KEY `product_brand` (`product_brand`),
+  ADD KEY `product_added_by_idx` (`added_by`);
 
 --
 -- Indexes for table `product_images`
@@ -294,11 +304,19 @@ ALTER TABLE `payment`
   ADD CONSTRAINT `payment_ibfk_2` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`);
 
 --
+-- Constraints for table `brands`
+--
+ALTER TABLE `brands`
+  ADD CONSTRAINT `brands_category_fk` FOREIGN KEY (`category_id`) REFERENCES `categories` (`cat_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `brands_user_fk` FOREIGN KEY (`user_id`) REFERENCES `customer` (`customer_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `products`
 --
 ALTER TABLE `products`
   ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`product_cat`) REFERENCES `categories` (`cat_id`),
-  ADD CONSTRAINT `products_ibfk_2` FOREIGN KEY (`product_brand`) REFERENCES `brands` (`brand_id`);
+  ADD CONSTRAINT `products_ibfk_2` FOREIGN KEY (`product_brand`) REFERENCES `brands` (`brand_id`),
+  ADD CONSTRAINT `products_added_by_fk` FOREIGN KEY (`added_by`) REFERENCES `customer` (`customer_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `product_images`
