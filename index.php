@@ -1,9 +1,14 @@
 <?php
 session_start();
 
-// Optional: Helper function to safely get the customer's name
 function getCustomerName() {
-    return isset($_SESSION['customer_name']) ? $_SESSION['customer_name'] : 'User';
+    if (isset($_SESSION['name']) && $_SESSION['name'] !== '') {
+        return $_SESSION['name'];
+    }
+    if (isset($_SESSION['customer_name']) && $_SESSION['customer_name'] !== '') {
+        return $_SESSION['customer_name'];
+    }
+    return 'User';
 }
 ?>
 
@@ -21,7 +26,12 @@ function getCustomerName() {
     <div class="menu-tray d-flex justify-content-end p-2">
         <span class="me-2 fw-bold">Menu:</span>
 
-        <?php if (!isset($_SESSION['user_id'])): ?>
+        <?php
+        $isLoggedIn = isset($_SESSION['user_id']);
+        $isAdmin = isset($_SESSION['role']) && (int)$_SESSION['role'] === 2;
+        ?>
+
+        <?php if (!$isLoggedIn): ?>
             <!-- Not logged in -->
             <a href="login/register.php" class="btn btn-sm btn-outline-primary me-1">Register</a>
             <a href="login/login.php" class="btn btn-sm btn-outline-secondary">Login</a>
@@ -30,8 +40,10 @@ function getCustomerName() {
             <!-- Logged in -->
             <a href="logout.php" class="btn btn-sm btn-outline-danger me-1">Logout</a>
 
-            <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
-                <a href="admin/category.php" class="btn btn-sm btn-outline-success">Category</a>
+            <?php if ($isAdmin): ?>
+                <a href="admin/category.php" class="btn btn-sm btn-outline-success me-1">Category</a>
+                <a href="admin/brand.php" class="btn btn-sm btn-outline-success me-1">Brand</a>
+                <a href="admin/product.php" class="btn btn-sm btn-outline-success">Add Product</a>
             <?php endif; ?>
         <?php endif; ?>
     </div>
@@ -39,7 +51,7 @@ function getCustomerName() {
     <div class="container main-content">
         <div class="text-center mt-5">
             <h1>Welcome</h1>
-            <?php if (isset($_SESSION['user_id'])): ?>
+            <?php if ($isLoggedIn): ?>
                 <p class="text-muted">Hello, <?php echo htmlspecialchars(getCustomerName()); ?>!</p>
             <?php else: ?>
                 <p class="text-muted">Use the menu in the top-right to Register or Login.</p>

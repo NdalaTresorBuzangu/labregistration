@@ -1,12 +1,8 @@
 <?php
 session_start();
-#include '../core.php';
-#include '../config.php';
-#isLogin(); // ensure user is logged in
 
-// Redirect if not admin
-if (!isset($_SESSION['role']) || $_SESSION['role'] != 2) {
-    header("Location: ../login.php");
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || (int)$_SESSION['role'] !== 2) {
+    header('Location: ../login/login.php');
     exit;
 }
 ?>
@@ -47,7 +43,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 2) {
     </table>
 </div>
 
-<script src="category.js"></script>
+<script src="../js/category.js"></script>
 </body>
 </html>
 

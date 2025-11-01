@@ -1,11 +1,17 @@
 $(document).ready(function() {
     function fetchCategories(search = '', sortColumn = '', sortOrder = '') {
         $.ajax({
-            url: 'fetch_category_action.php',
+            url: '../actions/fetch_category_action.php',
             method: 'POST',
             data: { search, sortColumn, sortOrder },
             dataType: 'json',
-            success: function(data) {
+            success: function(response) {
+                if (!response.success) {
+                    Swal.fire('Error', response.message || 'Failed to load categories', 'error');
+                    return;
+                }
+
+                const data = response.data || [];
                 let rows = '';
                 data.forEach(cat => {
                     rows += `<tr>
@@ -29,7 +35,7 @@ $(document).ready(function() {
         let name = $('#category_name').val().trim();
         if(name === '') return;
 
-        $.post('add_category_action.php', { name }, function(response) {
+        $.post('../actions/add_category_action.php', { name }, function(response) {
             Swal.fire(response.success ? 'Success!' : 'Error', response.message, response.success ? 'success' : 'error');
             if(response.success) {
                 $('#category_name').val('');
@@ -43,7 +49,7 @@ $(document).ready(function() {
         let name = $(this).closest('tr').find('.edit-name').val().trim();
         if(name === '') return;
 
-        $.post('update_category_action.php', { id, name }, function(response) {
+        $.post('../actions/update_category_action.php', { id, name }, function(response) {
             Swal.fire(response.success ? 'Success!' : 'Error', response.message, response.success ? 'success' : 'error');
             if(response.success) fetchCategories();
         }, 'json');
@@ -61,7 +67,7 @@ $(document).ready(function() {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if(result.isConfirmed) {
-                $.post('delete_category_action.php', { id }, function(response) {
+                $.post('../actions/delete_category_action.php', { id }, function(response) {
                     Swal.fire(response.success ? 'Deleted!' : 'Error', response.message, response.success ? 'success' : 'error');
                     if(response.success) fetchCategories();
                 }, 'json');

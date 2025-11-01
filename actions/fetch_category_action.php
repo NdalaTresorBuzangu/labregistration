@@ -2,30 +2,34 @@
 session_start();
 include '../controllers/category_controller.php';
 
-header("Content-Type: application/json");
+header('Content-Type: application/json');
 
 $categories = fetch_category_ctr();
 
-// Optional: filter by search or sort
-if(isset($_POST['search']) && $_POST['search'] != ''){
-    $categories = array_filter($categories, function($cat){
-        return stripos($cat['cat_name'], $_POST['search']) !== false;
+$search = isset($_POST['search']) ? trim($_POST['search']) : '';
+$sortColumn = isset($_POST['sortColumn']) ? $_POST['sortColumn'] : '';
+$sortOrder = isset($_POST['sortOrder']) ? strtolower($_POST['sortOrder']) : '';
+
+if ($search !== '') {
+    $categories = array_filter($categories, static function ($cat) use ($search) {
+        return stripos($cat['cat_name'], $search) !== false;
     });
 }
 
-// Optional: sorting
-if(isset($_POST['sortColumn']) && isset($_POST['sortOrder'])){
-    usort($categories, function($a, $b){
-        $col = $_POST['sortColumn'];
-        if($_POST['sortOrder'] == 'asc'){
-            return strcmp($a[$col], $b[$col]);
-        } else {
-            return strcmp($b[$col], $a[$col]);
+if ($sortColumn !== '' && in_array($sortColumn, ['cat_id', 'cat_name'], true)) {
+    $sortOrder = $sortOrder === 'desc' ? 'desc' : 'asc';
+    usort($categories, static function ($a, $b) use ($sortColumn, $sortOrder) {
+        if ($sortOrder === 'asc') {
+            return strnatcasecmp($a[$sortColumn], $b[$sortColumn]);
         }
+        return strnatcasecmp($b[$sortColumn], $a[$sortColumn]);
     });
 }
 
-echo json_encode(array_values($categories));
+echo json_encode([
+    'success' => true,
+    'data' => array_values($categories),
+]);
 ?>
 
 
