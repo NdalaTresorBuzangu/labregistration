@@ -2,9 +2,21 @@
 header('Content-Type: application/json');
 session_start();
 
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 0); // Don't display in output
+ini_set('log_errors', 1);
+
 $response = array();
 
-require_once '../controllers/user_controller.php';
+try {
+    require_once '../controllers/user_controller.php';
+} catch (Exception $e) {
+    $response['status'] = 'error';
+    $response['message'] = 'Failed to load controller: ' . $e->getMessage();
+    echo json_encode($response);
+    exit();
+}
 
 // Collect POST data safely
 $name         = isset($_POST['name']) ? trim($_POST['name']) : '';
@@ -22,15 +34,20 @@ if (empty($name) || empty($email) || empty($password) || empty($phone_number)) {
 }
 
 // Call controller function to register user
-$user_id = register_user_ctr($name, $email, $password, $phone_number, $role);
+try {
+    $user_id = register_user_ctr($name, $email, $password, $phone_number, $role);
 
-if ($user_id) {
-    $response['status']  = 'success';
-    $response['message'] = 'Registered successfully. Please log in.';
-    $response['user_id'] = $user_id;
-} else {
+    if ($user_id) {
+        $response['status']  = 'success';
+        $response['message'] = 'Registered successfully. Please log in.';
+        $response['user_id'] = $user_id;
+    } else {
+        $response['status'] = 'error';
+        $response['message'] = 'Failed to register. Email may already be in use or database error occurred.';
+    }
+} catch (Exception $e) {
     $response['status'] = 'error';
-    $response['message'] = 'Failed to register. Try again later.';
+    $response['message'] = 'Error: ' . $e->getMessage();
 }
 
 echo json_encode($response);

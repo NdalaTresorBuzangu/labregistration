@@ -3,7 +3,7 @@
 // Database credentials for Tresor Ndala’s E-Commerce hosting environment
 
 if (!defined('SERVER')) {
-    // Remote hosting server (not localhost)
+    // 
     define('SERVER', 'localhost');
 }
 

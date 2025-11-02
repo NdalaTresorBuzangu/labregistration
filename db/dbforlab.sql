@@ -18,14 +18,14 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `ecommerce_2025A_tresor_ndala`
--- Server Import Version: No CREATE/DROP database permissions required
+-- Database: `shoppn`
+-- Local XAMPP Version
 --
 
 -- --------------------------------------------------------
 
 -- Use existing database (database must already exist on server)
-USE `ecommerce_2025A_tresor_ndala`;
+USE `shoppn`;
 
 -- Disable foreign key checks for import
 SET FOREIGN_KEY_CHECKS=0;
