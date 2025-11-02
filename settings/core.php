@@ -8,7 +8,7 @@ ob_start();
 
 //funtion to check for login
 if (!isset($_SESSION['id'])) {
-    header("Location: ../Login/login_register.php");
+    header("Location: ../login/login.php");
     exit;
 }
 

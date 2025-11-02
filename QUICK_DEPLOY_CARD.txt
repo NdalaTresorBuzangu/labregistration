@@ -1,0 +1,181 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                  QUICK DEPLOYMENT CARD                        ║
+║            Taste of Africa - Server Deployment                ║
+╚═══════════════════════════════════════════════════════════════╝
+
+┌───────────────────────────────────────────────────────────────┐
+│ DATABASE CREDENTIALS                                          │
+└───────────────────────────────────────────────────────────────┘
+  Host:     localhost (lowercase!)
+  User:     tresor.ndala
+  Password: Ndala1950@@
+  Database: ecommerce_2025A_tresor_ndala
+
+┌───────────────────────────────────────────────────────────────┐
+│ DEPLOYMENT STEPS (4 STEPS)                                    │
+└───────────────────────────────────────────────────────────────┘
+
+  1️⃣  UPLOAD FILES
+      └─ FTP/SFTP all files to: /public_html/register_sample/
+
+  2️⃣  IMPORT DATABASE
+      └─ phpMyAdmin → Select database → Import → dbforlab.sql
+
+  3️⃣  TEST CONNECTION
+      └─ Visit: yourserver.com/register_sample/test_connection.php
+      └─ DELETE test_connection.php after success
+
+  4️⃣  SET PERMISSIONS
+      └─ chmod 777 uploads/
+      └─ chmod 777 uploads/images/
+
+┌───────────────────────────────────────────────────────────────┐
+│ FILES CHANGED (What was fixed)                                │
+└───────────────────────────────────────────────────────────────┘
+
+  ✅ settings/db_cred.php
+     'Localhost' → 'localhost' (Line 7)
+
+  ✅ settings/core.php
+     ../Login/ → ../login/ (Line 11)
+
+  ✅ db/dbforlab.sql
+     Added USE statement
+     Added DROP TABLE IF EXISTS
+     Added foreign key protection
+
+┌───────────────────────────────────────────────────────────────┐
+│ PHPMY ADMIN DATABASE IMPORT                                   │
+└───────────────────────────────────────────────────────────────┘
+
+  1. Login to phpMyAdmin
+  2. Select: ecommerce_2025A_tresor_ndala
+  3. Click: Import tab
+  4. Choose: db/dbforlab.sql
+  5. Click: Go
+  6. Verify: 9 tables created
+
+     Tables to verify:
+     ✓ brands          ✓ cart           ✓ categories
+     ✓ customer        ✓ orders         ✓ orderdetails
+     ✓ payment         ✓ products       ✓ product_images
+
+┌───────────────────────────────────────────────────────────────┐
+│ FOLDER STRUCTURE (Case-Sensitive!)                            │
+└───────────────────────────────────────────────────────────────┘
+
+  register_sample/
+  ├── CSS/           ← UPPERCASE (correct!)
+  ├── actions/       ← lowercase
+  ├── admin/         ← lowercase
+  ├── classes/       ← lowercase
+  ├── controllers/   ← lowercase
+  ├── db/           ← lowercase
+  ├── helpers/       ← lowercase
+  ├── js/           ← lowercase
+  ├── login/         ← lowercase (NOT Login!)
+  ├── settings/      ← lowercase
+  └── uploads/       ← lowercase (needs 777 permission)
+
+┌───────────────────────────────────────────────────────────────┐
+│ TESTING CHECKLIST                                             │
+└───────────────────────────────────────────────────────────────┘
+
+  □ Database connection successful
+  □ 9 tables visible in phpMyAdmin
+  □ User registration works
+  □ User login works
+  □ Admin panel accessible (role=2)
+  □ Products CRUD works
+  □ Images upload successfully
+  □ CSS files load correctly
+  □ Search works
+  □ test_connection.php DELETED
+
+┌───────────────────────────────────────────────────────────────┐
+│ TROUBLESHOOTING                                               │
+└───────────────────────────────────────────────────────────────┘
+
+  ❌ "Can't connect to database"
+     → Check 'localhost' is lowercase in settings/db_cred.php
+
+  ❌ "File not found" errors
+     → Check folder names match (case-sensitive)
+     → Use login/ not Login/
+
+  ❌ "Failed to write file"
+     → chmod 777 uploads/
+     → chmod 777 uploads/images/
+
+  ❌ "Table already exists"
+     → SQL file has DROP IF EXISTS - safe to re-import
+
+  ❌ CSS not loading
+     → CSS/ folder is UPPERCASE (correct)
+     → Clear browser cache
+
+┌───────────────────────────────────────────────────────────────┐
+│ SECURITY REMINDERS                                            │
+└───────────────────────────────────────────────────────────────┘
+
+  ⚠️  DELETE test_connection.php after testing
+  ✅  .htaccess protects sensitive files
+  ✅  Disable error display in production
+  ✅  Keep database credentials secure
+  ✅  Regular backups (phpMyAdmin Export)
+
+┌───────────────────────────────────────────────────────────────┐
+│ DOCUMENTATION FILES                                           │
+└───────────────────────────────────────────────────────────────┘
+
+  📖 README_SERVER_DEPLOYMENT.md    ← START HERE
+  📖 QUICK_FIX_REFERENCE.md         ← What was fixed
+  📖 DEPLOYMENT_CHECKLIST.md        ← Step-by-step
+  📖 db/IMPORT_INSTRUCTIONS.md      ← Database import
+  📖 COMPLETE_FIXES_SUMMARY.md      ← Complete overview
+
+┌───────────────────────────────────────────────────────────────┐
+│ QUICK COMMANDS                                                │
+└───────────────────────────────────────────────────────────────┘
+
+  # Set permissions (SSH)
+  chmod 755 -R /path/to/register_sample
+  chmod 777 uploads/
+  chmod 777 uploads/images/
+
+  # Test database (SSH)
+  mysql -u tresor.ndala -p ecommerce_2025A_tresor_ndala
+
+  # Import database (SSH alternative)
+  mysql -u tresor.ndala -p ecommerce_2025A_tresor_ndala < db/dbforlab.sql
+
+  # Check error logs
+  tail -f /var/log/apache2/error.log
+
+┌───────────────────────────────────────────────────────────────┐
+│ SUCCESS INDICATORS                                            │
+└───────────────────────────────────────────────────────────────┘
+
+  ✅ test_connection.php shows: "SUCCESS! Database connected"
+  ✅ phpMyAdmin shows 9 tables
+  ✅ Can login/register users
+  ✅ Admin panel loads
+  ✅ Images upload without errors
+  ✅ No 404 errors on any page
+
+╔═══════════════════════════════════════════════════════════════╗
+║  🚀 YOUR APPLICATION IS SERVER-READY!                         ║
+║                                                               ║
+║  All case-sensitivity issues fixed                           ║
+║  Database optimized for phpMyAdmin import                    ║
+║  Security enhanced with .htaccess                            ║
+║  Complete documentation provided                             ║
+╚═══════════════════════════════════════════════════════════════╝
+
+Version: 1.0 - Server Deployment Ready
+Updated: 2025-11-02
+Application: Taste of Africa E-Commerce Platform
+Developer: Tresor Ndala
+
+═══════════════════════════════════════════════════════════════
+

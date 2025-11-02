@@ -1,0 +1,64 @@
+# Environment and Configuration
+.env
+settings/db_cred.php
+test_connection.php
+
+# Uploads (user-generated content)
+uploads/*
+!uploads/.gitkeep
+uploads/images/*
+!uploads/images/.gitkeep
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# Logs
+*.log
+error_log
+debug.log
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+
+# Backup files
+*.bak
+*.backup
+*.old
+*_backup
+*_old
+
+# Database dumps (keep in separate secure location)
+*.sql
+*.sqlite
+*.db
+
+# PHP
+vendor/
+composer.lock
+composer.phar
+
+# Node modules (if using npm)
+node_modules/
+package-lock.json
+
+# Security
+.htpasswd
+
+# OS generated files
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+

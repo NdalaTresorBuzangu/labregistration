@@ -18,38 +18,34 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `shoppn`
+-- Database: `ecommerce_2025A_tresor_ndala`
+-- Server Import Version: No CREATE/DROP database permissions required
 --
 
 -- --------------------------------------------------------
-DROP DATABASE IF EXISTS `shoppn`;
-CREATE DATABASE `shoppn` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `shoppn`;
---
--- Table structure for table `brands`
---
 
-CREATE TABLE `brands` (
-  `brand_id` int(11) NOT NULL,
-  `brand_name` varchar(100) NOT NULL,
-  `category_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- Use existing database (database must already exist on server)
+USE `ecommerce_2025A_tresor_ndala`;
+
+-- Disable foreign key checks for import
+SET FOREIGN_KEY_CHECKS=0;
 
 -- --------------------------------------------------------
+-- DROP TABLES IN CORRECT ORDER (child tables first, parent tables last)
+-- --------------------------------------------------------
 
---
--- Table structure for table `cart`
---
+DROP TABLE IF EXISTS `product_images`;
+DROP TABLE IF EXISTS `cart`;
+DROP TABLE IF EXISTS `orderdetails`;
+DROP TABLE IF EXISTS `payment`;
+DROP TABLE IF EXISTS `products`;
+DROP TABLE IF EXISTS `brands`;
+DROP TABLE IF EXISTS `orders`;
+DROP TABLE IF EXISTS `customer`;
+DROP TABLE IF EXISTS `categories`;
 
-CREATE TABLE `cart` (
-  `p_id` int(11) NOT NULL,
-  `ip_add` varchar(50) NOT NULL,
-  `c_id` int(11) DEFAULT NULL,
-  `qty` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
+-- --------------------------------------------------------
+-- CREATE TABLES IN CORRECT ORDER (parent tables first, child tables last)
 -- --------------------------------------------------------
 
 --
@@ -82,13 +78,15 @@ CREATE TABLE `customer` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `orderdetails`
+-- Table structure for table `brands`
 --
 
-CREATE TABLE `orderdetails` (
-  `order_id` int(11) NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `qty` int(11) NOT NULL
+CREATE TABLE `brands` (
+  `brand_id` int(11) NOT NULL,
+  `brand_name` varchar(100) NOT NULL,
+  `category_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -103,21 +101,6 @@ CREATE TABLE `orders` (
   `invoice_no` int(11) NOT NULL,
   `order_date` date NOT NULL,
   `order_status` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `payment`
---
-
-CREATE TABLE `payment` (
-  `pay_id` int(11) NOT NULL,
-  `amt` double NOT NULL,
-  `customer_id` int(11) NOT NULL,
-  `order_id` int(11) NOT NULL,
-  `currency` text NOT NULL,
-  `payment_date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -138,6 +121,46 @@ CREATE TABLE `products` (
   `added_by` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cart`
+--
+
+CREATE TABLE `cart` (
+  `p_id` int(11) NOT NULL,
+  `ip_add` varchar(50) NOT NULL,
+  `c_id` int(11) DEFAULT NULL,
+  `qty` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `orderdetails`
+--
+
+CREATE TABLE `orderdetails` (
+  `order_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `qty` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `payment`
+--
+
+CREATE TABLE `payment` (
+  `pay_id` int(11) NOT NULL,
+  `amt` double NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `currency` text NOT NULL,
+  `payment_date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -324,6 +347,10 @@ ALTER TABLE `products`
 ALTER TABLE `product_images`
   ADD CONSTRAINT `product_images_added_by_fk` FOREIGN KEY (`added_by`) REFERENCES `customer` (`customer_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `product_images_product_fk` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Re-enable foreign key checks
+SET FOREIGN_KEY_CHECKS=1;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

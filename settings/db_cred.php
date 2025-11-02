@@ -1,26 +1,35 @@
 <?php
-//Database credentials
 // Settings/db_cred.php
-
-// define('DB_HOST', 'localhost');
-// define('DB_USER', 'root');
-// define('DB_PASS', '');
-// define('DB_NAME', 'dbforlab');
-
+// Database credentials for Tresor Ndala’s E-Commerce hosting environment
 
 if (!defined('SERVER')) {
-    define('SERVER', getenv('DB_HOST') ?: 'localhost');
+    // Remote hosting server (not localhost)
+    define('SERVER', 'localhost');
 }
 
 if (!defined('USERNAME')) {
-    define('USERNAME', getenv('DB_USER') ?: 'root');
+    // Your MySQL username
+    define('USERNAME', 'tresor.ndala');
 }
 
 if (!defined('PASSWD')) {
-    define('PASSWD', getenv('DB_PASS') ?: '');
+    // 🔐 Replace with your NEW MySQL password after first login
+    define('PASSWD', 'Ndala1950@@');
 }
 
 if (!defined('DATABASE')) {
-    define('DATABASE', getenv('DB_NAME') ?: 'shoppn');
+    // Your database name
+    define('DATABASE', 'ecommerce_2025A_tresor_ndala');
 }
+
+// Create connection
+$conn = mysqli_connect(SERVER, USERNAME, PASSWD, DATABASE);
+
+// Check connection
+if (!$conn) {
+    die("❌ Database connection failed: " . mysqli_connect_error());
+}
+
+// Optional: echo for testing
+// echo "✅ Database connected successfully!";
 ?>
