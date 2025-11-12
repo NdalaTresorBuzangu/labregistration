@@ -44,6 +44,10 @@ function getDisplayName(): string
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="all_product.php">All Products</a></li>
+                <li class="nav-item"><a class="nav-link" href="cart.php">
+                    <i class="fa fa-shopping-cart"></i> Cart
+                    <span class="badge bg-danger cart-count-badge ms-1" style="display:none;">0</span>
+                </a></li>
                 <?php if (!isLoggedIn()): ?>
                     <li class="nav-item"><a class="nav-link" href="login/register.php">Register</a></li>
                 <?php endif; ?>
@@ -105,7 +109,9 @@ function getDisplayName(): string
                         <h3 class="fw-semibold mb-4"><?php echo number_format((float)$product['product_price'], 2); ?> USD</h3>
                         <p class="mb-4"><?php echo nl2br(htmlspecialchars($product['product_desc'] ?? 'No description provided.')); ?></p>
                         <div class="d-flex gap-2 mb-4">
-                            <button class="btn app-button-primary" type="button" disabled>Add to cart</button>
+                            <button class="btn app-button-primary add-to-cart-btn" type="button" data-product-id="<?php echo (int)$product['product_id']; ?>" data-quantity="1">
+                                <i class="fa fa-shopping-cart"></i> Add to Cart
+                            </button>
                             <a href="all_product.php" class="btn btn-outline-secondary">Back to products</a>
                         </div>
                         <div class="small text-muted">
@@ -132,7 +138,10 @@ function getDisplayName(): string
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="js/storefront.js"></script>
+<script src="js/cart.js"></script>
 </body>
 </html>
 

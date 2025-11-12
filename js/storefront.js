@@ -287,7 +287,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p class="fw-semibold mb-3">${price}</p>
                         <div class="d-flex gap-2">
                             <a href="${link}" class="btn btn-outline-secondary btn-sm">View details</a>
-                            <button class="btn app-button-primary btn-sm" type="button" disabled>Add to cart</button>
+                            <button class="btn app-button-primary btn-sm add-to-cart-btn" type="button" data-product-id="${product.product_id}" data-quantity="1">
+                                <i class="fa fa-shopping-cart"></i> Add to cart
+                            </button>
                         </div>
                     </div>
                 </div>`;

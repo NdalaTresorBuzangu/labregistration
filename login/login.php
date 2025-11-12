@@ -23,6 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'], $_POST['pass
         $_SESSION["name"]    = $customer["customer_name"];
         $_SESSION["role"]    = (int)$customer["user_role"];
 
+        // Transfer guest cart to logged-in user
+        require_once __DIR__ . '/../controllers/cart_controller.php';
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        transfer_guest_cart_ctr($customer["customer_id"], $ipAddress);
+
         // Determine role name and redirect
         switch ($_SESSION["role"]) {
             case 2:
