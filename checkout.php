@@ -4,7 +4,7 @@ session_start();
 // Redirect to login if not logged in
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['redirect_after_login'] = 'checkout.php';
-    header('Location: login/login.php');
+    header('Location: login.php');
     exit;
 }
 

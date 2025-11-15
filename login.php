@@ -1,8 +1,76 @@
 <?php
+// Enable error reporting for debugging (remove in production)
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 session_start();
 
-require_once __DIR__ . '/../settings/connection.php';
-require_once __DIR__ . '/../controllers/user_controller.php';
+// Try to load required files with error handling
+$errors = [];
+
+// Check and load connection.php
+$connPath = __DIR__ . '/settings/connection.php';
+if (!file_exists($connPath)) {
+    $errors[] = "File not found: settings/connection.php (Looking in: " . $connPath . ")";
+} else {
+    try {
+        require_once $connPath;
+    } catch (Exception $e) {
+        $errors[] = "Error loading settings/connection.php: " . $e->getMessage();
+    } catch (Error $e) {
+        $errors[] = "Fatal error loading settings/connection.php: " . $e->getMessage() . " in " . $e->getFile() . " line " . $e->getLine();
+    }
+}
+
+// Check and load user_controller.php
+$userCtrlPath = __DIR__ . '/controllers/user_controller.php';
+if (!file_exists($userCtrlPath)) {
+    $errors[] = "File not found: controllers/user_controller.php (Looking in: " . $userCtrlPath . ")";
+} else {
+    try {
+        require_once $userCtrlPath;
+    } catch (Exception $e) {
+        $errors[] = "Error loading controllers/user_controller.php: " . $e->getMessage();
+    } catch (Error $e) {
+        $errors[] = "Fatal error loading controllers/user_controller.php: " . $e->getMessage() . " in " . $e->getFile() . " line " . $e->getLine();
+    }
+}
+
+// If there are errors, display them
+if (!empty($errors)) {
+    error_log("Login.php errors: " . implode(" | ", $errors));
+    http_response_code(500);
+    echo "<h2>Error Loading Required Files</h2>";
+    echo "<p>The following errors occurred:</p>";
+    echo "<ul>";
+    foreach ($errors as $error) {
+        echo "<li>" . htmlspecialchars($error) . "</li>";
+    }
+    echo "</ul>";
+    echo "<p><strong>Current directory:</strong> " . __DIR__ . "</p>";
+    echo "<p><strong>Checking for files:</strong></p>";
+    echo "<ul>";
+    echo "<li>settings/connection.php: " . (file_exists($connPath) ? "✅ EXISTS" : "❌ NOT FOUND") . "</li>";
+    echo "<li>controllers/user_controller.php: " . (file_exists($userCtrlPath) ? "✅ EXISTS" : "❌ NOT FOUND") . "</li>";
+    echo "</ul>";
+    echo "<p><strong>Directory contents:</strong></p>";
+    echo "<pre>";
+    if (is_dir(__DIR__)) {
+        $dirs = array_filter(glob(__DIR__ . '/*'), 'is_dir');
+        $files = array_filter(glob(__DIR__ . '/*'), 'is_file');
+        echo "Directories:\n";
+        foreach ($dirs as $dir) {
+            echo "  - " . basename($dir) . "/\n";
+        }
+        echo "\nFiles:\n";
+        foreach ($files as $file) {
+            echo "  - " . basename($file) . "\n";
+        }
+    }
+    echo "</pre>";
+    die();
+}
 
 // Handle AJAX login
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'], $_POST['password'])) {
@@ -23,20 +91,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'], $_POST['pass
         $_SESSION["name"]    = $customer["customer_name"];
         $_SESSION["role"]    = (int)$customer["user_role"];
 
-        // Transfer guest cart to logged-in user
-        require_once __DIR__ . '/../controllers/cart_controller.php';
-        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-        transfer_guest_cart_ctr($customer["customer_id"], $ipAddress);
+        // Transfer guest cart to logged-in user (if cart_controller exists)
+        if (file_exists(__DIR__ . '/controllers/cart_controller.php')) {
+            require_once __DIR__ . '/controllers/cart_controller.php';
+            $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+            if (function_exists('transfer_guest_cart_ctr')) {
+                transfer_guest_cart_ctr($customer["customer_id"], $ipAddress);
+            }
+        }
 
         // Determine role name and redirect
         switch ($_SESSION["role"]) {
             case 2:
                 $role_name = "Owner";
-                $redirect  = "../admin/category.php"; // ✅ correct path for Owner
+                $redirect  = "admin/category.php"; // ✅ correct path for Owner
                 break;
             case 1:
                 $role_name = "Customer";
-                $redirect  = "../index.php";
+                $redirect  = "index.php";
                 break;
             default:
                 echo json_encode([
@@ -73,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'], $_POST['pass
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../CSS/app.css">
+    <link rel="stylesheet" href="CSS/app.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -142,8 +214,8 @@ $(document).ready(function(){
                         if(response.redirect){
                             window.location.href = response.redirect;
                         } else if(response.role){
-                            if(response.role==2){ window.location.href="../admin/category.php"; } // ✅ correct path
-                            else { window.location.href="../index.php"; }
+                            if(response.role==2){ window.location.href="admin/category.php"; } // ✅ correct path
+                            else { window.location.href="index.php"; }
                         }
                     });
                 } else {

@@ -1,35 +1,26 @@
 <?php
 // Settings/db_cred.php
-// Database credentials for Tresor Ndala’s E-Commerce hosting environment
+// Database credentials for Tresor Ndala's E-Commerce hosting environment (Hostinger)
 
 if (!defined('SERVER')) {
-    // 
     define('SERVER', 'localhost');
 }
 
 if (!defined('USERNAME')) {
-    // Your MySQL username
-    define('USERNAME', 'tresor.ndala');
+    // Hostinger MySQL username (full format with account prefix)
+    define('USERNAME', 'u628771162_tresorndala');
 }
 
 if (!defined('PASSWD')) {
-    // 🔐 Replace with your NEW MySQL password after first login
+    // Hostinger MySQL password
     define('PASSWD', 'Ndala1950@@');
 }
 
 if (!defined('DATABASE')) {
-    // Your database name
-    define('DATABASE', 'ecommerce_2025A_tresor_ndala');
+    // Hostinger database name
+    define('DATABASE', 'u628771162_dbase');
 }
 
-// Create connection
-$conn = mysqli_connect(SERVER, USERNAME, PASSWD, DATABASE);
-
-// Check connection
-if (!$conn) {
-    die("❌ Database connection failed: " . mysqli_connect_error());
-}
-
-// Optional: echo for testing
-// echo "✅ Database connected successfully!";
+// Note: Connection is handled by connection.php, not here
+// This file only defines constants
 ?>

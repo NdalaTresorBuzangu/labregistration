@@ -9,8 +9,8 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || (int)$_SESSION[
     exit;
 }
 
-include '../controllers/product_controller.php';
-require_once '../helpers/upload_helper.php';
+require_once __DIR__ . '/../controllers/product_controller.php';
+require_once __DIR__ . '/../helpers/upload_helper.php';
 
 $userId = (int)$_SESSION['user_id'];
 $productId = isset($_POST['product_id']) ? (int)$_POST['product_id'] : 0;

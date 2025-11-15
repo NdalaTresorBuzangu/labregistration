@@ -1,6 +1,6 @@
 <?php
 
-require_once '../classes/cart_class.php';
+require_once __DIR__ . '/../classes/cart_class.php';
 
 /**
  * Cart Controller

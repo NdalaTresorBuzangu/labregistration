@@ -43,7 +43,7 @@ function getDisplayName(): string
                 <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="all_product.php">All Products</a></li>
                 <?php if (!isLoggedIn()): ?>
-                    <li class="nav-item"><a class="nav-link" href="login/register.php">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="register.php">Register</a></li>
                 <?php endif; ?>
                 <?php if (isLoggedIn() && isAdmin()): ?>
                     <li class="nav-item"><a class="nav-link" href="admin/category.php">Admin</a></li>
@@ -58,7 +58,7 @@ function getDisplayName(): string
             <?php if (isLoggedIn()): ?>
                 <div class="ms-lg-3 text-white-50 small">Signed in as <?php echo htmlspecialchars(getDisplayName()); ?></div>
             <?php else: ?>
-                <a href="login/login.php" class="btn btn-outline-light btn-sm ms-lg-3">Login</a>
+                <a href="login.php" class="btn btn-outline-light btn-sm ms-lg-3">Login</a>
             <?php endif; ?>
         </div>
     </nav>

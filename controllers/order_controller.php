@@ -1,6 +1,6 @@
 <?php
 
-require_once '../classes/order_class.php';
+require_once __DIR__ . '/../classes/order_class.php';
 
 /**
  * Order Controller

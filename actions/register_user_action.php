@@ -10,7 +10,7 @@ ini_set('log_errors', 1);
 $response = array();
 
 try {
-    require_once '../controllers/user_controller.php';
+    require_once __DIR__ . '/../controllers/user_controller.php';
 } catch (Exception $e) {
     $response['status'] = 'error';
     $response['message'] = 'Failed to load controller: ' . $e->getMessage();

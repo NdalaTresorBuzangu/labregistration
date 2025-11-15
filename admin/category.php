@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || (int)$_SESSION['role'] !== 2) {
-    header('Location: ../login/login.php');
+    header('Location: ../login.php');
     exit;
 }
 ?>

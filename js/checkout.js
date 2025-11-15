@@ -133,37 +133,21 @@ function processCheckout() {
         dataType: 'json',
         success: function(response) {
             if (response.success) {
-                // Show success message
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Order Placed Successfully!',
-                    html: `
-                        <div class="text-start">
-                            <p><strong>Order ID:</strong> #${response.order_id}</p>
-                            <p><strong>Invoice No:</strong> ${response.invoice_no}</p>
-                            <p><strong>Total Amount:</strong> $${parseFloat(response.total_amount).toFixed(2)} ${response.currency}</p>
-                            <p><strong>Items:</strong> ${response.items_count}</p>
-                            <hr>
-                            <p class="text-muted">Thank you for your purchase! Your order has been confirmed.</p>
-                        </div>
-                    `,
-                    confirmButtonText: 'View Orders',
-                    showCancelButton: true,
-                    cancelButtonText: 'Continue Shopping'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = 'orders.php';
-                    } else {
-                        window.location.href = 'all_product.php';
-                    }
+                // Redirect to payment success page with order details
+                const params = new URLSearchParams({
+                    order_id: response.order_id || '',
+                    invoice_no: response.invoice_no || '',
+                    total: response.total_amount || 0,
+                    currency: response.currency || 'USD',
+                    items: response.items_count || 0
                 });
+                window.location.href = 'payment_success.php?' + params.toString();
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Checkout Failed',
-                    text: response.message || 'Failed to process checkout. Please try again.',
-                    confirmButtonText: 'OK'
+                // Redirect to payment failed page with error message
+                const params = new URLSearchParams({
+                    error: response.message || 'Failed to process checkout. Please try again.'
                 });
+                window.location.href = 'payment_failed.php?' + params.toString();
             }
         },
         error: function(xhr, status, error) {
@@ -173,12 +157,11 @@ function processCheckout() {
                 errorMessage = xhr.responseJSON.message;
             }
 
-            Swal.fire({
-                icon: 'error',
-                title: 'Checkout Error',
-                text: errorMessage,
-                confirmButtonText: 'OK'
+            // Redirect to payment failed page
+            const params = new URLSearchParams({
+                error: errorMessage
             });
+            window.location.href = 'payment_failed.php?' + params.toString();
         }
     });
 }

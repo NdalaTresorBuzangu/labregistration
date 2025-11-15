@@ -2,9 +2,9 @@
 header('Content-Type: application/json');
 session_start();
 
-require_once '../controllers/cart_controller.php';
-require_once '../controllers/order_controller.php';
-require_once '../controllers/product_controller.php';
+require_once __DIR__ . '/../controllers/cart_controller.php';
+require_once __DIR__ . '/../controllers/order_controller.php';
+require_once __DIR__ . '/../controllers/product_controller.php';
 
 $response = [
     'success' => false,

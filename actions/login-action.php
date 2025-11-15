@@ -1,6 +1,6 @@
 <?php
-include "../settings/connection.php";
-include "../controllers/user_controller.php";
+require_once __DIR__ . '/../settings/connection.php';
+require_once __DIR__ . '/../controllers/user_controller.php';
 session_start();
 
 // Always return JSON

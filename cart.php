@@ -38,14 +38,14 @@ function getDisplayName(): string
                     <span class="badge bg-danger cart-count-badge ms-1" style="display:none;">0</span>
                 </a></li>
                 <?php if (!isLoggedIn()): ?>
-                    <li class="nav-item"><a class="nav-link" href="login/register.php">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="register.php">Register</a></li>
                 <?php endif; ?>
             </ul>
             <?php if (isLoggedIn()): ?>
                 <div class="ms-lg-3 text-white-50 small">Signed in as <?php echo htmlspecialchars(getDisplayName()); ?></div>
                 <a href="logout.php" class="btn btn-outline-light btn-sm ms-2">Logout</a>
             <?php else: ?>
-                <a href="login/login.php" class="btn btn-outline-light btn-sm ms-lg-3">Login</a>
+                <a href="login.php" class="btn btn-outline-light btn-sm ms-lg-3">Login</a>
             <?php endif; ?>
         </div>
     </nav>

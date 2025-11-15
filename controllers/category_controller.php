@@ -1,5 +1,5 @@
 <?php
-include_once '../classes/category_class.php';
+require_once __DIR__ . '/../classes/category_class.php';
 
 $category = new Category();
 

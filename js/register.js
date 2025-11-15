@@ -32,7 +32,7 @@ $(document).ready(function () {
 
         // Send request via AJAX
         $.ajax({
-            url: '../actions/register_user_action.php',
+            url: 'actions/register_user_action.php',
             type: 'POST',
             dataType: 'json',
             data: {

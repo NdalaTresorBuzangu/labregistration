@@ -45,7 +45,7 @@ function getCustomerName() {
                         <span class="badge bg-danger cart-count-badge ms-1" style="display:none;">0</span>
                     </a></li>
                     <?php if (!$isLoggedIn): ?>
-                        <li class="nav-item"><a class="nav-link" href="login/register.php">Register</a></li>
+                        <li class="nav-item"><a class="nav-link" href="register.php">Register</a></li>
                     <?php endif; ?>
                     <?php if ($isLoggedIn && $isAdmin): ?>
                         <li class="nav-item"><a class="nav-link" href="admin/category.php">Admin</a></li>
@@ -59,7 +59,7 @@ function getCustomerName() {
                 </form>
                 <div class="d-flex gap-2 ms-lg-3">
                     <?php if (!$isLoggedIn): ?>
-                        <a href="login/login.php" class="btn btn-outline-light btn-sm">Login</a>
+                        <a href="login.php" class="btn btn-outline-light btn-sm">Login</a>
                     <?php else: ?>
                         <a href="logout.php" class="btn btn-outline-light btn-sm">Logout</a>
                     <?php endif; ?>
@@ -120,8 +120,8 @@ function getCustomerName() {
                                     <a href="admin/brand.php" class="btn app-button-ghost">Manage Brands</a>
                                     <a href="admin/category.php" class="btn app-button-ghost">Manage Categories</a>
                                 <?php elseif (!$isLoggedIn): ?>
-                                    <a href="login/login.php" class="btn app-button-primary">Sign In</a>
-                                    <a href="login/register.php" class="btn app-button-ghost">Create Account</a>
+                                    <a href="login.php" class="btn app-button-primary">Sign In</a>
+                                    <a href="register.php" class="btn app-button-ghost">Create Account</a>
                                 <?php else: ?>
                                     <a href="logout.php" class="btn btn-outline-secondary">Logout</a>
                                 <?php endif; ?>

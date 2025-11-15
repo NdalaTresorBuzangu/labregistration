@@ -9,10 +9,10 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || (int)$_SESSION[
     exit;
 }
 
-include '../controllers/product_controller.php';
-include '../controllers/brand_controller.php';
-include '../controllers/category_controller.php';
-require_once '../helpers/upload_helper.php';
+require_once __DIR__ . '/../controllers/product_controller.php';
+require_once __DIR__ . '/../controllers/brand_controller.php';
+require_once __DIR__ . '/../controllers/category_controller.php';
+require_once __DIR__ . '/../helpers/upload_helper.php';
 
 $userId = (int)$_SESSION['user_id'];
 

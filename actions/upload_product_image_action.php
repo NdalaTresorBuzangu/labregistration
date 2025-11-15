@@ -9,8 +9,8 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || (int)$_SESSION[
     exit;
 }
 
-require_once '../controllers/product_controller.php';
-require_once '../helpers/upload_helper.php';
+require_once __DIR__ . '/../controllers/product_controller.php';
+require_once __DIR__ . '/../helpers/upload_helper.php';
 
 $hasMainImage = isset($_FILES['product_image']);
 $hasGalleryBatch = isset($_FILES['product_images']);
